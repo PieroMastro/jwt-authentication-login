@@ -4,6 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Character, Planet, Vehicle, Favorite
 from api.utils import generate_sitemap, APIException
+from flask_jwt_extended import create_access_token, get_jwt_identity, jwt_required, JWTManager
 
 api = Blueprint('api', __name__)
 
@@ -17,8 +18,22 @@ api = Blueprint('api', __name__)
 
 #     return jsonify(response_body), 200
 
+# Create a route to authenticate your users and return JWTs. The
+# create_access_token() function is used to actually generate the JWT.
+@api.route("/token", methods=["POST"])
+def create_token():
+    email = request.json.get("email", None)
+    password = request.json.get("password", None)
 
-@api.route('/users', methods=['GET','POST'])
+    user = User.query.filter_by(email=email, password=password).first()
+    if email != "test" or password != "test":
+        return jsonify({"msg": "Bad email or password"}), 401
+
+    access_token = create_access_token(identity=email)
+    return jsonify(access_token=access_token)
+
+
+@api.route('/users', methods=['GET', 'POST'])
 def get_users():
     if request.method == 'GET':
         users = User.query.all()
@@ -27,17 +42,17 @@ def get_users():
         for user in users:
             users_dictionaries.append(user.serialize())
         return jsonify(users_dictionaries), 200
-    
+
     new_user_data = request.json
-            # new_user = User.create(
-            #     email = new_user_data['email'],
-            #     username = new_user_data['username'],
-            # )
+    # new_user = User.create(
+    #     email = new_user_data['email'],
+    #     username = new_user_data['username'],
+    # )
     try:
         new_user = User.create(**new_user_data)
-        return jsonify(new_user.serialize()),201
+        return jsonify(new_user.serialize()), 201
     except Exception as error:
-        return jsonify(error.args[0]),error.args[1] if len(error.args) > 1 else 500
+        return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
 
 @api.route('/characters', methods=['GET', 'POST'])
@@ -56,9 +71,10 @@ def get_characters():
     except Exception as error:
         return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
+
 @api.route('/characters/<int:character_id>', methods=['GET'])
 def get_character(character_id):
-    character = Character.query.filter_by(id = character_id)
+    character = Character.query.filter_by(id=character_id)
     try:
         return jsonify(caracter[0].serialize())
     except Exception as error:
@@ -81,9 +97,10 @@ def get_planets():
     except Exception as error:
         return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
+
 @api.route('/planets/<int:planet_id>', methods=['GET'])
 def get_planet(planet_id):
-    character = Planet.query.filter_by(id = planet_id)
+    character = Planet.query.filter_by(id=planet_id)
     try:
         return jsonify(planet[0].serialize())
     except Exception as error:
@@ -106,9 +123,10 @@ def get_vehicles():
     except Exception as error:
         return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
+
 @api.route('/vehicles/<int:vehicle_id>', methods=['GET'])
 def get_vehicle(vehicle_id):
-    vehicle = Vehicle.query.filter_by(id = vehicle_id)
+    vehicle = Vehicle.query.filter_by(id=vehicle_id)
     try:
         return jsonify(vehicle[0].serialize())
     except Exception as error:
@@ -117,7 +135,7 @@ def get_vehicle(vehicle_id):
 
 @api.route('users/<int:user_id>/favorites', methods=['GET'])
 def get_favorites(user_id):
-    favorites = Favorite.query.filter_by(user_id = user_id)
+    favorites = Favorite.query.filter_by(user_id=user_id)
     favorites_dictionary = []
     for favorite in favorites:
         favorites_dictionary.append(favorite.serialize())
@@ -128,69 +146,81 @@ def get_favorites(user_id):
 def add_character_to_favorites(character_id, user_id):
 
     new_favorite_data = request.json
-    favorites = Favorite.query.filter_by(user_id = user_id, character_id = character_id).first()
+    favorites = Favorite.query.filter_by(
+        user_id=user_id, character_id=character_id).first()
     if favorites is not None:
         return jsonify({"message": "The character is already in favorites."}), 401
     else:
         try:
-            new_favorite = Favorite.create_favorite(user_id = user_id, character_id = character_id, **new_favorite_data)
+            new_favorite = Favorite.create_favorite(
+                user_id=user_id, character_id=character_id, **new_favorite_data)
             return jsonify(new_favorite.serialize()), 201
         except Exception as error:
             return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
-@api.route('favorite/characters/<int:user_id>/<int:character_id>', methods=['DELETE'])  
+
+@api.route('favorite/characters/<int:user_id>/<int:character_id>', methods=['DELETE'])
 def delete_character_from_favorites(character_id, user_id):
-    favorite_to_delete = Favorite.query.filter_by(user_id = user_id, character_id = character_id).first()
+    favorite_to_delete = Favorite.query.filter_by(
+        user_id=user_id, character_id=character_id).first()
     try:
         delete_char = Favorite.delete_favorite(favorite_to_delete)
         return jsonify(delete_char), 200
     except Exception as error:
-        return jsonify(error.args[0]),error.args[1] if len(error.args) > 1 else 500
+        return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
 
 @api.route('favorite/planets/<int:user_id>/<int:planet_id>', methods=['POST'])
 def add_planet_to_favorites(planet_id, user_id):
 
     new_favorite_data = request.json
-    favorites = Favorite.query.filter_by(user_id = user_id, planet_id = planet_id).first()
+    favorites = Favorite.query.filter_by(
+        user_id=user_id, planet_id=planet_id).first()
     if favorites is not None:
         return jsonify({"message": "The planet is already in favorites."}), 401
     else:
         try:
-            new_favorite = Favorite.create_favorite(user_id = user_id, planet_id = planet_id, **new_favorite_data)
+            new_favorite = Favorite.create_favorite(
+                user_id=user_id, planet_id=planet_id, **new_favorite_data)
             return jsonify(new_favorite.serialize()), 201
         except Exception as error:
             return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
-@api.route('favorite/planets/<int:user_id>/<int:planet_id>', methods=['DELETE'])  
+
+@api.route('favorite/planets/<int:user_id>/<int:planet_id>', methods=['DELETE'])
 def delete_planet_from_favorites(planet_id, user_id):
-    favorite_to_delete = Favorite.query.filter_by(user_id = user_id, planet_id = planet_id).first()
+    favorite_to_delete = Favorite.query.filter_by(
+        user_id=user_id, planet_id=planet_id).first()
     try:
         delete_planet = Favorite.delete_favorite(favorite_to_delete)
         return jsonify(delete_planet), 200
     except Exception as error:
-        return jsonify(error.args[0]),error.args[1] if len(error.args) > 1 else 500
+        return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
 
 @api.route('favorite/vehicles/<int:user_id>/<int:vehicle_id>', methods=['POST'])
 def add_vehicle_to_favorites(vehicle_id, user_id):
 
     new_favorite_data = request.json
-    favorites = Favorite.query.filter_by(user_id = user_id, vehicle_id = vehicle_id).first()
+    favorites = Favorite.query.filter_by(
+        user_id=user_id, vehicle_id=vehicle_id).first()
     if favorites is not None:
         return jsonify({"message": "The vehicle is already in favorites."}), 401
     else:
         try:
-            new_favorite = Favorite.create_favorite(user_id = user_id, vehicle_id = vehicle_id, **new_favorite_data)
+            new_favorite = Favorite.create_favorite(
+                user_id=user_id, vehicle_id=vehicle_id, **new_favorite_data)
             return jsonify(new_favorite.serialize()), 201
         except Exception as error:
             return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
 
-@api.route('favorite/vehicles/<int:user_id>/<int:vehicle_id>', methods=['DELETE'])  
+
+@api.route('favorite/vehicles/<int:user_id>/<int:vehicle_id>', methods=['DELETE'])
 def delete_vehicle_from_favorites(vehicle_id, user_id):
-    favorite_to_delete = Favorite.query.filter_by(user_id = user_id, vehicle_id = vehicle_id).first()
+    favorite_to_delete = Favorite.query.filter_by(
+        user_id=user_id, vehicle_id=vehicle_id).first()
     try:
         delete_vehicle = Favorite.delete_favorite(favorite_to_delete)
         return jsonify(delete_vehicle), 200
     except Exception as error:
-        return jsonify(error.args[0]),error.args[1] if len(error.args) > 1 else 500
+        return jsonify(error.args[0]), error.args[1] if len(error.args) > 1 else 500
