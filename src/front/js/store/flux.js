@@ -4,12 +4,13 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 		store: {
 			baseUrl: "https://www.swapi.tech/api",
+			apiUrl: `${process.env.BACKEND_URL}`,
 			characters: [],
-			// JSON.parse(localStorage.getItem("characters")) ||
 			planets: [],
 			vehicles: [],
 			favorites: [],
 			message: null,
+			token: null,
 			demo: [
 				{
 					title: "FIRST",
@@ -26,6 +27,38 @@ const getState = ({ getStore, getActions, setStore }) => {
 
 		actions: {
 
+			login: async (email, password) => {
+				const store = getStore()
+				const options = {
+					method: 'POST',
+					headers: {
+						"Content-Type": "application/json"
+					},
+					body: JSON.stringify({
+						email: email,
+						password: password,
+					})
+				};
+
+				try {
+					const response = await fetch(`${store.apiUrl}/api/token`, options);
+					if (response.status !== 200) {
+						let showError = await response.json();
+						alert(showError.msg);
+						return false;
+					};
+
+					const data = await response.json();
+					console.log("This came from the backend", data);
+					sessionStorage.setItem("token", data.access_token);
+					setStore({ token: data.access_token });
+					return true;
+				}
+
+				catch (error) {
+					console.log("There was an error trying to login in", error);
+				}
+			},
 
 			getCharacters: () => {
 				const store = getStore()
@@ -49,7 +82,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						})
 						.catch((error) => { console.log(error); })
 				}
-
 			},
 
 
@@ -65,7 +97,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 						} else if (response.status === 500) {
 							console.log(response.status);
 						}
-					} catch (error) {
+					}
+					catch (error) {
 						console.log(error);
 					}
 				}
@@ -107,39 +140,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 				const favs = store.favorites.filter((favorite, index) => index !== position)
 				setStore({ favorites: favs })
 			},
-
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-
-
-			// getMessage: async () => {
-			// 	try {
-			// 		// fetching data from the backend
-			// 		const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-			// 		const data = await resp.json()
-			// 		setStore({ message: data.message })
-			// 		// don't forget to return something, that is how the async resolves
-			// 		return data;
-			// 	} catch (error) {
-			// 		console.log("Error loading message from backend", error)
-			// 	}
-			// },
-			// changeColor: (index, color) => {
-			// 	//get the store
-			// 	const store = getStore();
-
-			// 	//we have to loop the entire demo array to look for the respective index
-			// 	//and change its color
-			// 	const demo = store.demo.map((elm, i) => {
-			// 		if (i === index) elm.background = color;
-			// 		return elm;
-			// 	});
-
-			// 	//reset the global store
-			// 	setStore({ demo: demo });
-			// },
 		}
 	};
 };

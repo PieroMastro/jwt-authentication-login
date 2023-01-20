@@ -44,10 +44,7 @@ def get_users():
         return jsonify(users_dictionaries), 200
 
     new_user_data = request.json
-    # new_user = User.create(
-    #     email = new_user_data['email'],
-    #     username = new_user_data['username'],
-    # )
+
     try:
         new_user = User.create(**new_user_data)
         return jsonify(new_user.serialize()), 201
