@@ -12,7 +12,7 @@ export const Navbar = () => {
 				<Link to="/">
 					<img style={{ width: "100px" }} src={starWarsLogo}></img>
 				</Link>
-				<div className="ml-auto">
+				<div className="ml-auto d-flex align-content-center justify-content-between">
 					{store.token && (
 						<div className="dropdown">
 							<button
@@ -50,18 +50,20 @@ export const Navbar = () => {
 							</ul>
 						</div>
 					)}
-					<div className="p-2">
-						<Link to="/signup">
-							<button className="btn btn-secondary me-2">
-								Sign up
-							</button>
-						</Link>
+					<div className="ps-2">
 						{!store.token ? (
-							<Link to="/login">
-								<button className="btn btn-dark">
-									Log In
-								</button>
-							</Link>
+							<div>
+								<Link to="/login">
+									<button className="btn btn-dark">
+										Log In
+									</button>
+								</Link>
+								{/* <Link to="/signup">
+									<button className="btn btn-secondary">
+										Sign up
+									</button>
+								</Link> */}
+							</div>
 						) : (
 							<Link to="/login">
 								<button

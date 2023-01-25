@@ -76,7 +76,7 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 
-			register: async (name, email, password) => {
+			register: async (username, email, password) => {
 				const store = getStore();
 				const options = {
 					method: "POST",
@@ -84,15 +84,14 @@ const getState = ({ getStore, getActions, setStore }) => {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
-						name: name,
+						username: username,
 						email: email,
 						password: password,
 					}),
 				};
 
 				try {
-					const response = await fetch(`${store.urlBase}/api/users`, options);
-
+					const response = await fetch(`${store.apiUrl}/api/users`, options);
 					if (!response.ok) {
 						let danger = await response.json();
 						alert(danger);
@@ -103,9 +102,10 @@ const getState = ({ getStore, getActions, setStore }) => {
 					console.log("This came from the backend", data);
 					return true;
 				} catch (error) {
-					console.error("There has been an error login in");
+					console.error("There has been an error signin up");
 				}
 			},
+
 
 			getCharacters: () => {
 				const store = getStore()
