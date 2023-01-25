@@ -8,6 +8,18 @@ export const Login = () => {
     const { store, actions } = useContext(Context);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const navigate = useNavigate();
+
+    // const sendData = (event) => {
+    //     event.preventDefault();
+    //     actions.login(email, password);
+    // };
+
+    // useEffect(() => {
+    //     if (store.token && store.token !== "" && store.token !== undefined) {
+    //         navigate("/");
+    //     }
+    // }, [store.token]);
 
     const handleClick = () => {
 
@@ -37,8 +49,8 @@ export const Login = () => {
 
     return (
         <React.Fragment>
-            <div className="container">
-                <h1 className="text-center">LOGIN</h1>
+            <div className="container login w-50 mt-2">
+                <h1 className="text-center display-6">LOGIN</h1>
                 <form>
                     <div className="mb-3">
                         <label
@@ -47,7 +59,7 @@ export const Login = () => {
                         <input
                             type="email"
                             className="form-control"
-                            placeholder="Please insert your email"
+                            placeholder="Please entere your email"
                             value={email}
                             onChange={(event) => setEmail(event.target.value)}
                         />
@@ -59,17 +71,19 @@ export const Login = () => {
                         <input
                             type="password"
                             className="form-control"
-                            placeholder="Please insert your password"
+                            placeholder="Please enter your password"
                             value={password}
                             onChange={(event) => setPassword(event.target.value)}
                         />
                     </div>
-                    <button
-                        type="login"
-                        className="btn btn-success"
-                        onClick={handleClick}>
-                        Login
-                    </button>
+                    <div className="text-center">
+                        <button
+                            type="login"
+                            className="btn btn-success w-25"
+                            onClick={handleClick}>
+                            Login
+                        </button>
+                    </div>
                 </form>
             </div>
         </React.Fragment>

@@ -6,7 +6,7 @@ import { ItemCard } from "../component/ItemCard";
 export const Home = () => {
 
 	const { store, actions } = useContext(Context);
-	// console.log(JSON.parse(localStorage.getItem("characters")));
+
 	return (
 		<React.Fragment>
 			<div className="container">

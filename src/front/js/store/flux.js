@@ -3,14 +3,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 	return {
 
 		store: {
-			baseUrl: "https://www.swapi.tech/api",
-			apiUrl: `${process.env.BACKEND_URL}`,
-			characters: [],
-			planets: [],
-			vehicles: [],
-			favorites: [],
-			message: null,
-			token: null,
 			demo: [
 				{
 					title: "FIRST",
@@ -22,10 +14,26 @@ const getState = ({ getStore, getActions, setStore }) => {
 					background: "white",
 					initial: "white"
 				}
-			]
+			],
+			message: null,
+
+			baseUrl: "https://www.swapi.tech/api",
+			apiUrl: `${process.env.BACKEND_URL}`,
+			characters: [],
+			planets: [],
+			vehicles: [],
+			favorites: [],
+			token: null
 		},
 
 		actions: {
+
+			syncTokenFromSessionStorage: () => {
+				const token = sessionStorage.getItem("token");
+				console.log("App just loaded, syncing the session storage token");
+				if (token && token != "" && token != undefined) setStore({ token: token });
+			},
+
 
 			login: async (email, password) => {
 				const store = getStore()
@@ -56,7 +64,46 @@ const getState = ({ getStore, getActions, setStore }) => {
 				}
 
 				catch (error) {
-					console.log("There was an error trying to login in", error);
+					console.error("There was an error trying to login in", error);
+				}
+			},
+
+
+			logout: () => {
+				sessionStorage.removeItem("token");
+				console.log("Login Out");
+				setStore({ token: null })
+			},
+
+
+			register: async (name, email, password) => {
+				const store = getStore();
+				const options = {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+					body: JSON.stringify({
+						name: name,
+						email: email,
+						password: password,
+					}),
+				};
+
+				try {
+					const response = await fetch(`${store.urlBase}/api/users`, options);
+
+					if (!response.ok) {
+						let danger = await response.json();
+						alert(danger);
+						return false;
+					}
+
+					const data = await response.json();
+					console.log("This came from the backend", data);
+					return true;
+				} catch (error) {
+					console.error("There has been an error login in");
 				}
 			},
 

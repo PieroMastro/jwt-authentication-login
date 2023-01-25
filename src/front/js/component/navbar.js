@@ -13,41 +13,66 @@ export const Navbar = () => {
 					<img style={{ width: "100px" }} src={starWarsLogo}></img>
 				</Link>
 				<div className="ml-auto">
-					<div className="dropdown">
-						<button
-							className="btn btn-dark dropdown-toggle"
-							type="button"
-							data-bs-toggle="dropdown"
-							aria-expanded="false">
-							Favorites ({store.favorites.length})
-						</button>
-						<ul className="dropdown-menu justify-content-between">
-							{!store.favorites.length == 0 ? (
-								store.favorites.map((favorite, index) => {
-									return <li
-										className="d-flex flex-nowrap p-1"
-										key={index}>
-										<span className="dropdown-item">
-											<Link
-												className="favs-menu"
-												style={{ textDecoration: 'none' }}
-												to={favorite.url}>
-												{favorite.name}
-											</Link>
-										</span>
-										<span>
-											<i className="dropdown-btn fa-solid fa-trash pt-2 pe-2"
-												onClick={() => {
-													actions.delFavorite(index)
-												}
-												}>
-											</i>
-										</span>
-									</li>
-								}))
-								: (<li className="text-center">No favorites</li>)
-							}
-						</ul>
+					{store.token && (
+						<div className="dropdown">
+							<button
+								className="btn btn-dark dropdown-toggle"
+								type="button"
+								data-bs-toggle="dropdown"
+								aria-expanded="false">
+								Favorites ({store.favorites.length})
+							</button>
+							<ul className="dropdown-menu justify-content-between">
+								{!store.favorites.length == 0 ? (
+									store.favorites.map((favorite, index) => {
+										return <li
+											className="d-flex flex-nowrap p-1"
+											key={index}>
+											<span className="dropdown-item">
+												<Link
+													className="favs-menu"
+													style={{ textDecoration: 'none' }}
+													to={favorite.url}>
+													{favorite.name}
+												</Link>
+											</span>
+											<span>
+												<i className="dropdown-btn fa-solid fa-trash pt-2 pe-2"
+													onClick={() => {
+														actions.delFavorite(index)
+													}}>
+												</i>
+											</span>
+										</li>
+									}))
+									: (<li className="text-center">You have no favorites</li>)
+								}
+							</ul>
+						</div>
+					)}
+					<div className="p-2">
+						<Link to="/signup">
+							<button className="btn btn-secondary me-2">
+								Sign up
+							</button>
+						</Link>
+						{!store.token ? (
+							<Link to="/login">
+								<button className="btn btn-dark">
+									Log In
+								</button>
+							</Link>
+						) : (
+							<Link to="/login">
+								<button
+									className="btn btn-danger"
+									onClick={() => {
+										actions.logout()
+									}}>
+									Logout
+								</button>
+							</Link>
+						)}
 					</div>
 				</div>
 			</div>

@@ -8,6 +8,7 @@ import { Planet } from "./pages/Planets";
 import { Vehicle } from "./pages/Vehicles";
 import { Demo } from "./pages/demo";
 import { Login } from "./pages/Login";
+import { Signup } from "./pages/Signup";
 import { Single } from "./pages/single";
 import injectContext from "./store/appContext";
 
@@ -27,6 +28,7 @@ const Layout = () => {
                     <Navbar />
                     <Routes>
                         <Route element={<Login />} path="/login" />
+                        <Route element={<Signup />} path="/signup" />
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Character />} path="/characters/:uid" />
