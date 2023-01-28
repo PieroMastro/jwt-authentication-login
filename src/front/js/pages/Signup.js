@@ -12,7 +12,7 @@ export const Signup = () => {
     const sendData = (event) => {
         event.preventDefault();
         actions.register(name, email, password);
-        if (name != "" && email != "" && password != "") navigate("/login");
+        if (username != "" && email != "" && password != "") navigate("/login");
     };
 
     return (

@@ -10,10 +10,6 @@ export const Login = () => {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const sendData = (event) => {
-        event.preventDefault();
-        actions.login(email, password);
-    };
 
     useEffect(() => {
         if (store.token && store.token !== "" && store.token !== undefined) {
@@ -21,7 +17,8 @@ export const Login = () => {
         }
     }, [store.token]);
 
-    const handleClick = () => {
+    const sendData = (event) => {
+        event.preventDefault();
         actions.login(email, password);
     };
 
@@ -60,7 +57,7 @@ export const Login = () => {
                                 <button
                                     type="login"
                                     className="btn btn-success w-25 me-2"
-                                    onClick={handleClick}>
+                                    onClick={sendData}>
                                     Login
                                 </button>
                                 <Link to="/signup" className="text-center">

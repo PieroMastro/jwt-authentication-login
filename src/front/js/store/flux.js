@@ -31,7 +31,8 @@ const getState = ({ getStore, getActions, setStore }) => {
 			syncTokenFromSessionStorage: () => {
 				const token = sessionStorage.getItem("token");
 				console.log("App just loaded, syncing the session storage token");
-				if (token && token != "" && token != undefined) setStore({ token: token });
+				if (token && token != "" && token != undefined)
+					setStore({ token: token });
 			},
 
 
@@ -107,6 +108,24 @@ const getState = ({ getStore, getActions, setStore }) => {
 			},
 
 
+			getAccess: async () => {
+				const store = getStore();
+				const options = {
+					headers: {
+						Authorization: "Bearer " + store.token,
+					},
+				};
+				try {
+					const response = await fetch(`${store.apiUrl}/api/private`, options);
+					const data = await response.json();
+					setStore({ message: data.message });
+					return data;
+				}
+				catch (error) {
+					console.log("Error getting message from the backend", error);
+				}
+			},
+
 			getCharacters: () => {
 				const store = getStore()
 
@@ -122,10 +141,6 @@ const getState = ({ getStore, getActions, setStore }) => {
 						})
 						.then((body) => {
 							setStore({ characters: [...store.characters, body.result] })
-							// // for some reason couldn't save to localstorage
-							// let elementsToSave = [...body.results]
-							// // console.log(elementsToSave);
-							// localStorage.setItem("characters", JSON.stringify(body.results))
 						})
 						.catch((error) => { console.log(error); })
 				}
