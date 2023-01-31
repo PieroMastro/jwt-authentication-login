@@ -11,7 +11,7 @@ export const Signup = () => {
 
     const sendData = (event) => {
         event.preventDefault();
-        actions.register(name, email, password);
+        actions.register(username, email, password);
         if (username != "" && email != "" && password != "") navigate("/login");
     };
 
