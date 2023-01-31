@@ -4,7 +4,7 @@ import { Context } from "../store/appContext";
 
 export const Signup = () => {
     const { store, actions } = useContext(Context);
-    const [name, setName] = useState("");
+    const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
@@ -26,8 +26,8 @@ export const Signup = () => {
                             className="form-control"
                             placeholder="Please set your Username"
                             type="text"
-                            value={name}
-                            onChange={(event) => setName(event.target.value.trim())}
+                            value={username}
+                            onChange={(event) => setUsername(event.target.value.trim())}
                         />
                     </div>
                     <div className="mb-3">
